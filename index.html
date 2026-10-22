@@ -535,8 +535,7 @@
         </div>
 
         <p class="fb-privacy">
-          提交后会打开 GitHub 页面，你确认一下就发布，我能直接看到。
-          反馈内容不含任何个人数据，也不会自动采集你的信息。
+          写什么都可以，提交后会直接发给我。反馈内容不含任何个人数据，也不会自动采集你的信息。
         </p>
       </div>
     </section>
@@ -551,8 +550,9 @@
 
   <script>
     (function () {
-      var REPO = 'annan426/picpop-docs';
       var VERSION = '1.2';
+      // FormSubmit：把反馈直接发到邮箱，用户无需注册任何账号
+      var ENDPOINT = 'https://formsubmit.co/ajax/guannan@kanyun.com';
 
       var input = document.getElementById('fbText');
       var btn = document.getElementById('fbSubmit');
@@ -564,21 +564,9 @@
         note.className = 'fb-note' + (kind ? ' ' + kind : '');
       }
 
-      // 预填 GitHub Issue 表单：用户点「Create」即发布，不需要账号以外的东西
-      function buildIssueUrl(body) {
-        var title = '用户反馈（v' + VERSION + '）';
-        var payload = [
-          body,
-          '',
-          '---',
-          '- 版本：v' + VERSION,
-          '- 页面：' + location.href,
-        ].join('\n');
-
-        return 'https://github.com/' + REPO + '/issues/new'
-          + '?title=' + encodeURIComponent(title)
-          + '&body=' + encodeURIComponent(payload)
-          + '&labels=' + encodeURIComponent('feedback');
+      function setBusy(busy) {
+        btn.disabled = busy;
+        btn.textContent = busy ? '提交中…' : '提交反馈';
       }
 
       btn.addEventListener('click', function () {
@@ -592,9 +580,44 @@
           say('内容太长了，请控制在 2000 字以内。', 'bad');
           return;
         }
-        say('正在打开 GitHub…');
-        window.open(buildIssueUrl(text), '_blank', 'noopener');
-        say('已打开 GitHub，点一下「Create」就提交完成。', 'ok');
+
+        setBusy(true);
+        say('正在提交…');
+
+        fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            _subject: 'PicPop 用户反馈（v' + VERSION + '）',
+            _template: 'table',
+            _captcha: 'false',
+            反馈内容: text,
+            版本: 'v' + VERSION,
+            时间: new Date().toLocaleString('zh-CN'),
+            页面: location.href,
+          }),
+        })
+          .then(function (res) {
+            // FormSubmit 首次使用需要收件人点邮件里的确认链接，此时会返回 200 但 success 为 false
+            return res.json().catch(function () { return {}; }).then(function (data) {
+              return { ok: res.ok, data: data };
+            });
+          })
+          .then(function (r) {
+            if (r.ok && r.data && r.data.success === false) {
+              say('提交服务还在激活中，请稍后再试，或直接联系开发者。', 'bad');
+              return;
+            }
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            input.value = '';
+            say('已收到，谢谢你的反馈！', 'ok');
+          })
+          .catch(function () {
+            say('提交失败，请检查网络后重试。', 'bad');
+          })
+          .then(function () {
+            setBusy(false);
+          });
       });
 
       // 输入时清掉上一次的提示
