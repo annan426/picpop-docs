@@ -272,27 +272,63 @@
     .steps b { color: var(--text); font-weight: 500; }
 
     /* ---------- 反馈 ---------- */
-    .feedback-list {
-      margin: 0 0 14px;
-      padding-left: 20px;
-      font-size: 13.5px;
-      color: var(--muted);
-    }
-    .feedback-list li { margin-bottom: 4px; }
-    .feedback-list b { color: var(--text); font-weight: 500; }
-    .feedback-btn {
-      display: inline-block;
-      padding: 9px 20px;
-      background: transparent;
+    .fb-field {
+      width: 100%;
+      min-height: 104px;
+      padding: 12px 14px;
+      background: var(--card-2);
       border: 1px solid var(--line);
-      border-radius: 9px;
+      border-radius: 10px;
       color: var(--text);
-      font-size: 13.5px;
-      font-weight: 500;
-      text-decoration: none;
-      transition: border-color .15s ease;
+      font: inherit;
+      font-size: 14px;
+      line-height: 1.65;
+      resize: vertical;
     }
-    .feedback-btn:hover { border-color: var(--accent); }
+    .fb-field::placeholder { color: var(--muted); }
+    .fb-field:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .fb-foot {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 11px;
+    }
+    .fb-btn {
+      padding: 9px 22px;
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 9px;
+      color: #fff;
+      font: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter .15s ease, opacity .15s ease;
+      white-space: nowrap;
+    }
+    .fb-btn:hover:not(:disabled) { filter: brightness(1.08); }
+    .fb-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    .fb-note {
+      font-size: 12.5px;
+      color: var(--muted);
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .fb-note.ok { color: var(--accent); }
+    .fb-note.bad { color: #d93b3b; }
+
+    .fb-privacy {
+      margin: 12px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
 
     /* ---------- 页脚 ---------- */
     footer {
@@ -486,13 +522,22 @@
     <section>
       <h2>问题反馈</h2>
       <div class="card">
-        <p style="margin-bottom:12px;">哪里用着别扭、哪个模型出错、还想要什么功能，都欢迎提。</p>
-        <ul class="feedback-list">
-          <li>带上 <b>版本号</b>（页面最下方有，当前 v1.2）</li>
-          <li>说明用的<b>哪个模型</b></li>
-          <li>说清<b>你做了什么、看到了什么</b>，有截图更好</li>
-        </ul>
-        <a class="feedback-btn" href="https://github.com/annan426/picpop-docs/issues" target="_blank" rel="noopener">提交反馈 →</a>
+        <textarea
+          class="fb-field"
+          id="fbText"
+          maxlength="2000"
+          placeholder="哪里用着别扭、哪个模型出错、还想要什么功能……直接写在这里就行。"
+        ></textarea>
+
+        <div class="fb-foot">
+          <button type="button" class="fb-btn" id="fbSubmit">提交反馈</button>
+          <span class="fb-note" id="fbNote"></span>
+        </div>
+
+        <p class="fb-privacy">
+          提交后会打开 GitHub 页面，你确认一下就发布，我能直接看到。
+          反馈内容不含任何个人数据，也不会自动采集你的信息。
+        </p>
       </div>
     </section>
 
@@ -503,5 +548,60 @@
     </footer>
 
   </div>
+
+  <script>
+    (function () {
+      var REPO = 'annan426/picpop-docs';
+      var VERSION = '1.2';
+
+      var input = document.getElementById('fbText');
+      var btn = document.getElementById('fbSubmit');
+      var note = document.getElementById('fbNote');
+      if (!input || !btn) return;
+
+      function say(text, kind) {
+        note.textContent = text;
+        note.className = 'fb-note' + (kind ? ' ' + kind : '');
+      }
+
+      // 预填 GitHub Issue 表单：用户点「Create」即发布，不需要账号以外的东西
+      function buildIssueUrl(body) {
+        var title = '用户反馈（v' + VERSION + '）';
+        var payload = [
+          body,
+          '',
+          '---',
+          '- 版本：v' + VERSION,
+          '- 页面：' + location.href,
+        ].join('\n');
+
+        return 'https://github.com/' + REPO + '/issues/new'
+          + '?title=' + encodeURIComponent(title)
+          + '&body=' + encodeURIComponent(payload)
+          + '&labels=' + encodeURIComponent('feedback');
+      }
+
+      btn.addEventListener('click', function () {
+        var text = (input.value || '').trim();
+        if (!text) {
+          say('请先写点内容再提交。', 'bad');
+          input.focus();
+          return;
+        }
+        if (text.length > 2000) {
+          say('内容太长了，请控制在 2000 字以内。', 'bad');
+          return;
+        }
+        say('正在打开 GitHub…');
+        window.open(buildIssueUrl(text), '_blank', 'noopener');
+        say('已打开 GitHub，点一下「Create」就提交完成。', 'ok');
+      });
+
+      // 输入时清掉上一次的提示
+      input.addEventListener('input', function () {
+        if (note.textContent) say('');
+      });
+    })();
+  </script>
 </body>
 </html>
