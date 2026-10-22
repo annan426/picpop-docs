@@ -3,7 +3,518 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PicPop 使用说明</title>
+  <title>PicPop <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PicPop · 使用说明</title>
+  <meta name="description" content="PicPop —— 公司内部 AI 生图小工具，基于 Model 助手的生图模型。" />
+  <link rel="icon" href="logo.png" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f8fc;
+      --bg-glow: rgba(76, 141, 255, .16);
+      --card: #ffffff;
+      --card-2: #f7f9fc;
+      --text: #10151d;
+      --muted: #6b7788;
+      --line: rgba(16, 21, 29, .10);
+      --accent: #2f6ff0;
+      --warn-bg: rgba(224, 163, 60, .10);
+      --warn-line: rgba(224, 163, 60, .42);
+      --warn-text: #8a5d0f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0d1117;
+        --bg-glow: rgba(76, 141, 255, .22);
+        --card: #171b21;
+        --card-2: #1e232b;
+        --text: #eef2f8;
+        --muted: #8b97a8;
+        --line: rgba(255, 255, 255, .09);
+        --accent: #6aa2ff;
+        --warn-bg: rgba(224, 163, 60, .12);
+        --warn-line: rgba(224, 163, 60, .38);
+        --warn-text: #e0a33c;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 56px 24px 64px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+                   "Microsoft YaHei", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.72;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20% -10% auto -10%;
+      height: 62vh;
+      background: radial-gradient(ellipse at 50% 0%, var(--bg-glow), transparent 68%);
+      pointer-events: none;
+    }
+
+    .wrap {
+      position: relative;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ---------- 头部 ---------- */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    .mark {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: block;
+      box-shadow: 0 8px 22px rgba(47, 111, 240, .18);
+      flex: 0 0 auto;
+    }
+    h1 {
+      margin: 0;
+      font-size: 25px;
+      font-weight: 600;
+      letter-spacing: .01em;
+      line-height: 1.25;
+    }
+    .ver {
+      display: inline-block;
+      margin-left: 9px;
+      padding: 2px 9px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .02em;
+      color: var(--accent);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      vertical-align: 4px;
+      white-space: nowrap;
+    }
+    .lede {
+      margin: 0 0 26px;
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+
+    /* ---------- 提示条 ---------- */
+    .notice {
+      display: flex;
+      gap: 10px;
+      padding: 13px 16px;
+      margin-bottom: 30px;
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-radius: 11px;
+      color: var(--warn-text);
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+    .notice b { color: inherit; }
+    .notice-icon { flex: 0 0 auto; font-size: 15px; line-height: 1.65; }
+
+    /* ---------- 区块 ---------- */
+    section { margin-bottom: 34px; }
+    h2 {
+      margin: 0 0 13px;
+      font-size: 16.5px;
+      font-weight: 600;
+      letter-spacing: .01em;
+    }
+    h2 .sub {
+      margin-left: 8px;
+      font-size: 12.5px;
+      font-weight: 400;
+      color: var(--muted);
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 12px; }
+    p:last-child { margin-bottom: 0; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 18px 20px;
+    }
+
+    /* ---------- 表格 ---------- */
+    .table-scroll {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--card);
+      -webkit-overflow-scrolling: touch;
+    }
+    table {
+      width: 100%;
+      min-width: 620px;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    th, td {
+      padding: 11px 14px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+    }
+    thead th {
+      background: var(--card-2);
+      font-weight: 600;
+      font-size: 12.5px;
+      color: var(--muted);
+      letter-spacing: .02em;
+      white-space: nowrap;
+    }
+    tbody tr:last-child td { border-bottom: 0; }
+    td.model { font-weight: 600; white-space: nowrap; }
+    td.model .tag {
+      display: block;
+      margin-top: 3px;
+      font-size: 11.5px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+    .pick {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 1px 7px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+    }
+    .mono { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    /* ---------- 下载 ---------- */
+    .download {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .meta-line {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 22px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 9px;
+      white-space: nowrap;
+      transition: filter .15s ease;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn.pending {
+      background: transparent;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      font-weight: 500;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .steps {
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      padding-left: 23px;
+      margin-bottom: 6px;
+    }
+    .steps li:last-child { margin-bottom: 0; }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 3px;
+      width: 16px;
+      height: 16px;
+      font-size: 10.5px;
+      font-weight: 600;
+      line-height: 16px;
+      text-align: center;
+      color: var(--accent);
+      border: 1px solid var(--line);
+      border-radius: 50%;
+    }
+    .steps b { color: var(--text); font-weight: 500; }
+
+    /* ---------- 反馈 ---------- */
+    .feedback-list {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+    .feedback-list li { margin-bottom: 4px; }
+    .feedback-list b { color: var(--text); font-weight: 500; }
+    .feedback-btn {
+      display: inline-block;
+      padding: 9px 20px;
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--text);
+      font-size: 13.5px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: border-color .15s ease;
+    }
+    .feedback-btn:hover { border-color: var(--accent); }
+
+    /* ---------- 页脚 ---------- */
+    footer {
+      margin-top: 44px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      font-size: 12.5px;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+    footer p { margin: 0 0 7px; }
+    footer p:last-child { margin-bottom: 0; }
+    footer strong { color: var(--text); font-weight: 600; }
+
+    @media (max-width: 560px) {
+      body { padding: 38px 16px 48px; font-size: 14.5px; }
+      h1 { font-size: 21px; }
+      .ver { vertical-align: 3px; }
+      .card { padding: 15px 16px; }
+      .download { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .btn { text-align: center; }
+
+      /* 窄屏：表格改为每个模型一张卡片，避免横向滚动藏住信息 */
+      .table-scroll { overflow: visible; border: 0; background: transparent; }
+      table, thead, tbody, tr, th, td { display: block; }
+      table { min-width: 0; }
+      thead { display: none; }
+      tbody tr {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+      }
+      tbody tr:last-child { margin-bottom: 0; }
+      td {
+        padding: 0;
+        border: 0;
+      }
+      td.model {
+        white-space: normal;
+        font-size: 15px;
+        padding-bottom: 9px;
+        margin-bottom: 9px;
+        border-bottom: 1px solid var(--line);
+      }
+      td.model .tag { display: inline; margin: 0 0 0 7px; }
+      td.model .pick { margin-left: 7px; vertical-align: 1px; }
+      td.mono::before,
+      td.td-gap::before,
+      td.td-use::before {
+        display: block;
+        font-size: 11.5px;
+        font-weight: 500;
+        color: var(--muted);
+        letter-spacing: .02em;
+        margin-bottom: 3px;
+      }
+      td.mono::before { content: "出图尺寸"; }
+      td.mono { margin-bottom: 10px; }
+      td.td-gap::before { content: "主要短板"; }
+      .td-gap { color: var(--text); }
+      td.td-gap { margin-bottom: 10px; }
+      td.td-use::before { content: "什么时候用它"; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header>
+      <img class="mark" src="logo.png" alt="PicPop" width="52" height="52" />
+      <h1>PicPop<span class="ver">v1.2</span></h1>
+    </header>
+    <p class="lede">一个装在自己电脑上的 AI 生图小工具。写一句中文，点生成，图就出来了。</p>
+
+    <div class="notice">
+      <span class="notice-icon">⚠️</span>
+      <span>
+        <b>仅供公司内部使用。</b>本工具用于方便同事做 AI 生图、提升日常工作效率，
+        <b>不得用于任何商业或盈利目的</b>。软件按「现状」提供，开发者不对生成结果及由此产生的任何后果承担责任。
+      </span>
+    </div>
+
+    <section>
+      <h2>它是什么</h2>
+      <div class="card">
+        <p>
+          PicPop 调用公司 Model 助手提供的生图模型，界面完全在你自己的电脑上运行。
+          提示词和图片都不会上传，<b>生成的图直接存到你选好的文件夹</b>。
+        </p>
+        <p>
+          <b>模型会持续跟进。</b>Model 助手上线新的生图模型后，在「设置 → AI 模型」里填上
+          接口地址、模型名和自己的 Key 就能用，<b>不需要等 PicPop 更新版本</b>。
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>四个模型怎么选<span class="sub">四个都能用，但各有短板</span></h2>
+
+      <div class="notice" style="margin-bottom:14px;">
+        <span class="notice-icon">📌</span>
+        <span>
+          <b>四个模型都无法直接生成透明背景。</b>PicPop 的「透明背景」是在本地把纯色背景抠掉，
+          只适合白底、纯色底的单主体图（杯子、证件照、商品图）。遇到复杂背景、毛发、玻璃、烟雾，
+          程序会<b>自动放弃、保留原图</b>，不会给你一张抠坏的图。
+        </span>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>模型</th>
+              <th>出图尺寸</th>
+              <th>主要短板</th>
+              <th>什么时候用它</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="model">
+                Seedream 4.5
+                <span class="tag">豆包</span>
+                <span class="pick">默认首选</span>
+              </td>
+              <td class="mono">2K 约 2048×2048</td>
+              <td class="td-gap">没有明显短板，四个里最稳</td>
+              <td class="td-use"><b>不知道选哪个就用它。</b>日常出图、对尺寸准确度有要求时优先选这个</td>
+            </tr>
+            <tr>
+              <td class="model">
+                Seedream 5.0 Lite
+                <span class="tag">豆包</span>
+              </td>
+              <td class="mono">2K 实际 2848×1600</td>
+              <td class="td-gap">输出<b>不是正方形</b>，比例会偏离你选的；程序要再缩放一次，细节略有损失</td>
+              <td class="td-use">想要更多画面细节，且对长宽比要求不严时</td>
+            </tr>
+            <tr>
+              <td class="model">
+                Gemini 3 Pro Image
+                <span class="tag">Google</span>
+              </td>
+              <td class="mono">原生约 1408×768</td>
+              <td class="td-gap">公司网关<b>不接受尺寸参数</b>，只能把比例写进提示词去「商量」，出图不保证像素级一致；速度较慢（18–23 秒）</td>
+              <td class="td-use">重视画质和创意感、尺寸可以事后缩放时</td>
+            </tr>
+            <tr>
+              <td class="model">
+                Gemini 3.1 Flash Image
+                <span class="tag">Google</span>
+              </td>
+              <td class="mono">约 1024×1024 / 1376×768</td>
+              <td class="td-gap">和上一个同样的尺寸限制，<b>原生分辨率也更低</b>，放大后容易发糊</td>
+              <td class="td-use">快速试效果、只看构图和创意时</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="hint">
+        第一次使用需要填自己的 API Key：右上角 ⚙ →「AI 模型」。Key 只保存在你自己的电脑上。
+      </p>
+    </section>
+
+    <section>
+      <h2>下载安装<span class="sub">当前版本 v1.2</span></h2>
+      <div class="card">
+        <div class="download">
+          <div>
+            <b>PicPop v1.2（分享版）</b>
+            <div class="meta-line">macOS · 约 76 MB · Apple 芯片与 Intel 芯片均可</div>
+          </div>
+          <a class="btn pending" href="https://github.com/annan426/picpop-docs/releases/download/v1.2/PicPop-1.2.zip">安装包上传中</a>
+        </div>
+
+        <ol class="steps">
+          <li>解压后把 <b>PicPop.app</b> 拖进「应用程序」</li>
+          <li>第一次打开若提示「来自身份不明的开发者」，<b>右键点图标 → 打开 → 再点「打开」</b></li>
+          <li>打开后进 ⚙ 设置，填上你自己的 API Key</li>
+        </ol>
+      </div>
+      <p class="hint">
+        分享版<b>不含任何人的 Key</b>，四个模型一开始都显示「待填 Key」，这是正常的。
+        安装包稍后上传到 <a href="https://github.com/annan426/picpop-docs/releases" target="_blank" rel="noopener" style="color:var(--accent);">Releases 页面</a>。
+      </p>
+    </section>
+
+    <section>
+      <h2>问题反馈</h2>
+      <div class="card">
+        <p style="margin-bottom:12px;">哪里用着别扭、哪个模型出错、还想要什么功能，都欢迎提。</p>
+        <ul class="feedback-list">
+          <li>带上 <b>版本号</b>（页面最下方有，当前 v1.2）</li>
+          <li>说明用的<b>哪个模型</b></li>
+          <li>说清<b>你做了什么、看到了什么</b>，有截图更好</li>
+        </ul>
+        <a class="feedback-btn" href="https://github.com/annan426/picpop-docs/issues" target="_blank" rel="noopener">提交反馈 →</a>
+      </div>
+    </section>
+
+    <footer>
+      <p><strong>使用范围：</strong>仅供公司内部使用，用于提升同事日常的 AI 生图效率，不得用于商业、盈利或对外分发。</p>
+      <p><strong>免责声明：</strong>本工具由个人利用业余时间开发，非公司正式产品，不提供任何形式的担保。因使用本工具造成的直接或间接损失，开发者不承担责任。</p>
+      <p><strong>数据说明：</strong>你的提示词、图片与 API Key 都只保存在你自己的电脑上，PicPop 不做任何上传或统计。</p>
+    </footer>
+
+  </div>
+</body>
+</html>
+使用说明</title>
   <meta name="description" content="PicPop 使用说明" />
   <link rel="icon" href="logo.png" />
   <style>
