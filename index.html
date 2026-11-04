@@ -271,65 +271,6 @@
     }
     .steps b { color: var(--text); font-weight: 500; }
 
-    /* ---------- 反馈 ---------- */
-    .fb-field {
-      width: 100%;
-      min-height: 104px;
-      padding: 12px 14px;
-      background: var(--card-2);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      color: var(--text);
-      font: inherit;
-      font-size: 14px;
-      line-height: 1.65;
-      resize: vertical;
-    }
-    .fb-field::placeholder { color: var(--muted); }
-    .fb-field:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    .fb-foot {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 11px;
-    }
-    .fb-btn {
-      padding: 9px 22px;
-      background: var(--accent);
-      border: 1px solid var(--accent);
-      border-radius: 9px;
-      color: #fff;
-      font: inherit;
-      font-size: 13.5px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: filter .15s ease, opacity .15s ease;
-      white-space: nowrap;
-    }
-    .fb-btn:hover:not(:disabled) { filter: brightness(1.08); }
-    .fb-btn:disabled { opacity: .55; cursor: not-allowed; }
-
-    .fb-note {
-      font-size: 12.5px;
-      color: var(--muted);
-      flex: 1 1 auto;
-      min-width: 0;
-    }
-    .fb-note.ok { color: var(--accent); }
-    .fb-note.bad { color: #d93b3b; }
-
-    .fb-privacy {
-      margin: 12px 0 0;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
     /* ---------- 页脚 ---------- */
     footer {
       margin-top: 44px;
@@ -428,6 +369,10 @@
           <b>模型会持续跟进。</b>Model 助手上线新的生图模型后，在「设置 → AI 模型」里填上
           接口地址、模型名和自己的 Key 就能用，<b>不需要等 PicPop 更新版本</b>。
         </p>
+        <p>
+          <b>图不满意可以只改一块。</b>点开任意一张图，在图上拖出矩形、写一句要改成什么，
+          就只重画框住的这一块 —— <b>框外一个像素都不会动</b>，不用整张重来。
+        </p>
       </div>
     </section>
 
@@ -478,17 +423,17 @@
                 Gemini 3 Pro Image
                 <span class="tag">Google</span>
               </td>
-              <td class="mono">原生约 1408×768</td>
-              <td class="td-gap">公司网关<b>不接受尺寸参数</b>，只能把比例写进提示词去「商量」，出图不保证像素级一致；速度较慢（18–23 秒）</td>
-              <td class="td-use">重视画质和创意感、尺寸可以事后缩放时</td>
+              <td class="mono">固定约 1024×1024</td>
+              <td class="td-gap">比例能按你选的出，但<b>分辨率固定</b>（约 1024 见方），要更大尺寸得靠本地放大；速度较慢（18–23 秒）</td>
+              <td class="td-use">重视画质和创意感、改图精度要求高时</td>
             </tr>
             <tr>
               <td class="model">
                 Gemini 3.1 Flash Image
                 <span class="tag">Google</span>
               </td>
-              <td class="mono">约 1024×1024 / 1376×768</td>
-              <td class="td-gap">和上一个同样的尺寸限制，<b>原生分辨率也更低</b>，放大后容易发糊</td>
+              <td class="mono">固定约 1376×768</td>
+              <td class="td-gap">比例跟随所选，但<b>原生分辨率更低</b>，放大后容易发糊</td>
               <td class="td-use">快速试效果、只看构图和创意时</td>
             </tr>
           </tbody>
@@ -519,27 +464,6 @@
       </div>
     </section>
 
-    <section>
-      <h2>问题反馈</h2>
-      <div class="card">
-        <textarea
-          class="fb-field"
-          id="fbText"
-          maxlength="2000"
-          placeholder="哪里用着别扭、哪个模型出错、还想要什么功能……直接写在这里就行。"
-        ></textarea>
-
-        <div class="fb-foot">
-          <button type="button" class="fb-btn" id="fbSubmit">提交反馈</button>
-          <span class="fb-note" id="fbNote"></span>
-        </div>
-
-        <p class="fb-privacy">
-          写什么都可以，提交后会直接发给我。反馈内容不含任何个人数据，也不会自动采集你的信息。
-        </p>
-      </div>
-    </section>
-
     <footer>
       <p><strong>使用范围：</strong>仅供公司内部使用，用于提升同事日常的 AI 生图效率，不得用于商业、盈利或对外分发。</p>
       <p><strong>免责声明：</strong>本工具由个人利用业余时间开发，非公司正式产品，不提供任何形式的担保。因使用本工具造成的直接或间接损失，开发者不承担责任。</p>
@@ -548,83 +472,5 @@
 
   </div>
 
-  <script>
-    (function () {
-      var VERSION = '1.2';
-      // FormSubmit：把反馈直接发到邮箱，用户无需注册任何账号
-      var ENDPOINT = 'https://formsubmit.co/ajax/guannan@kanyun.com';
-
-      var input = document.getElementById('fbText');
-      var btn = document.getElementById('fbSubmit');
-      var note = document.getElementById('fbNote');
-      if (!input || !btn) return;
-
-      function say(text, kind) {
-        note.textContent = text;
-        note.className = 'fb-note' + (kind ? ' ' + kind : '');
-      }
-
-      function setBusy(busy) {
-        btn.disabled = busy;
-        btn.textContent = busy ? '提交中…' : '提交反馈';
-      }
-
-      btn.addEventListener('click', function () {
-        var text = (input.value || '').trim();
-        if (!text) {
-          say('请先写点内容再提交。', 'bad');
-          input.focus();
-          return;
-        }
-        if (text.length > 2000) {
-          say('内容太长了，请控制在 2000 字以内。', 'bad');
-          return;
-        }
-
-        setBusy(true);
-        say('正在提交…');
-
-        fetch(ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            _subject: 'PicPop 用户反馈（v' + VERSION + '）',
-            _template: 'table',
-            _captcha: 'false',
-            反馈内容: text,
-            版本: 'v' + VERSION,
-            时间: new Date().toLocaleString('zh-CN'),
-            页面: location.href,
-          }),
-        })
-          .then(function (res) {
-            // FormSubmit 首次使用需要收件人点邮件里的确认链接，此时会返回 200 但 success 为 false
-            return res.json().catch(function () { return {}; }).then(function (data) {
-              return { ok: res.ok, data: data };
-            });
-          })
-          .then(function (r) {
-            if (r.ok && r.data && r.data.success === false) {
-              say('提交服务还在激活中，请稍后再试，或直接联系开发者。', 'bad');
-              return;
-            }
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            input.value = '';
-            say('已收到，谢谢你的反馈！', 'ok');
-          })
-          .catch(function () {
-            say('提交失败，请检查网络后重试。', 'bad');
-          })
-          .then(function () {
-            setBusy(false);
-          });
-      });
-
-      // 输入时清掉上一次的提示
-      input.addEventListener('input', function () {
-        if (note.textContent) say('');
-      });
-    })();
-  </script>
 </body>
 </html>
